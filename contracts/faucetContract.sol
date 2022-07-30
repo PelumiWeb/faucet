@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-contract Faucet {
+import "./Owned.sol";
+import "./Logger.sol";
+import "./IFaucet.sol";
+
+
+
+contract Faucet is Owned, Logger, IFaucet{
 
     //This is a special function
     //It's called when you make a tx that doesn't spacify function name to call
@@ -10,6 +16,14 @@ contract Faucet {
     uint public numOfFounders;
     mapping(address => bool) private funders;
     mapping(uint => address) private lutfunders;
+
+    // address public owner;
+
+    // constructor() {
+    //     owner = msg.sender;
+    // }
+
+   
 
     modifier limitWithdraw(uint withdralAmount) {
          require(
@@ -21,7 +35,16 @@ contract Faucet {
     }
 
     receive() external payable {}
-    function addFunds() external payable {
+
+    // function transferOwnership(address newOwner) external onlyOwner{
+    //     owner = newOwner;
+    // }
+
+    function emitLog() public override pure returns(bytes32) {
+        return "Hello world";
+    }
+
+    function addFunds() override external payable {
         address funder = msg.sender;
         // funders.push(msg.sender);
         if (!funders[funder]) {
@@ -33,8 +56,16 @@ contract Faucet {
         // uint index = numOfFounders++;
         // funders[index] = msg.sender;
     }
+    //Admin
+    function test1() external onlyOwner {
+        //some managing stuff that only admin should have access to
+    }
 
-    function withdraw(uint withdralAmount) external limitWithdraw(withdralAmount){
+    //Non-admin
+    function test2() external onlyOwner {
+            //some managing stuff that only admin should have access to
+        }
+    function withdraw(uint withdralAmount) external override limitWithdraw(withdralAmount){
         payable(msg.sender).transfer(withdralAmount);
     }
 
